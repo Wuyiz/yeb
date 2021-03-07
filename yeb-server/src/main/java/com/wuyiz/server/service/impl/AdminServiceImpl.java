@@ -51,7 +51,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
          */
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         //判断用户是否存在或密码是否正确
-        if (null == userDetails || passwordEncoder.matches(password, userDetails.getPassword())) {
+        if (null == userDetails || !passwordEncoder.matches(password, userDetails.getPassword())) {
             return RespBean.error("用户不存在或密码不正确");
         }
 

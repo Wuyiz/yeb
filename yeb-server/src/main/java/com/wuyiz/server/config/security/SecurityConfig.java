@@ -7,14 +7,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import javax.annotation.Resource;
 
 /**
  * Created with IntelliJ IDEA
@@ -24,7 +23,7 @@ import javax.annotation.Resource;
  */
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Resource
+    @Autowired
     AdminService adminService;
     @Autowired
     RestAuthorizationEntryPoint restAuthorizationEntryPoint;    // 自定义的尚未登陆或token失效的结果页面
@@ -42,6 +41,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
+     * 放行路径（不走拦截链）
+     * @param web
+     * @throws Exception
+     */
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers(
+                "/login",
+                "/register",
+                "/logout",
+                "/**.html",
+                "/css/**",
+                "/js/**",
+                "/img/**",
+                "/fonts/**",
+                "favicon.ico",
+                "/doc.html",                    // 放行 swagger 资源
+                "/webjars/**",                  // 放行 swagger 资源
+                "/swagger-resources/**",        // 放行 swagger 资源
+                "/v2/api-docs/**"               // 放行 swagger 资源
+        );
+    }
+
+    /**
      * springSecurity的完整配置方法
      * @param http
      * @throws Exception
@@ -55,10 +78,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                // 允许登录访问
-                .antMatchers("/login", "/logout")
-                .permitAll()
-                // 除了上面的，所有请求都需要认证
+                // 所有请求都需要认证
                 .anyRequest()
                 .authenticated()
                 .and()

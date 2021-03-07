@@ -34,7 +34,7 @@ mybatis-plus:
   type-aliases-package: com.wuyiz.server.pojo
   configuration:
     # 自动驼峰命名
-    map-underscore-to-camel-case: false
+    map-underscore-to-camel-case: true
 
 ## mybatis sql 打印（mapper方法接口所在的包，不是mapper.xml）
 logging:
