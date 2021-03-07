@@ -7,6 +7,7 @@ import com.wuyiz.server.mapper.AdminMapper;
 import com.wuyiz.server.pojo.Admin;
 import com.wuyiz.server.service.AdminService;
 import com.wuyiz.server.utils.RespBean;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,7 +46,11 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     private String tokenHead;
 
     @Override
-    public RespBean login(String username, String password, HttpServletRequest request) {
+    public RespBean login(String username, String password, String code, HttpServletRequest request) {
+        String captcha = (String) request.getSession().getAttribute("captcha");
+        if (StringUtils.isBlank(code) || !StringUtils.equalsIgnoreCase(captcha, code)) {
+            return RespBean.error("验证码输入错误，请重新输入！");
+        }
         /**
          * 通过loadUserByUsername方法查询用户信息
          */

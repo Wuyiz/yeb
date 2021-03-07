@@ -1,5 +1,6 @@
 package com.wuyiz.server.config.security;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,12 +40,12 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         // 从请求中获取头信息
         String authHeader = request.getHeader(tokenHeader);
         // 判断token是否存在并且token的前缀是Bearer
-        if (null != authHeader && authHeader.startsWith(tokenHead)) {
+        if (StringUtils.isNotBlank(authHeader) && StringUtils.startsWith(authHeader, tokenHead)) {
             String authToken = authHeader.substring(tokenHead.length());
             String username = jwtTokenUtil.getUserNameFromToken(authToken);
             // 获取当前springSecurity的全局用户对象，
             // 如果token中用户名存在，但是全局用户对象中没有，则重新登录用户，并判断token是否过期，并添加到用户对象
-            if (null != username && null == SecurityContextHolder.getContext().getAuthentication()) {
+            if (StringUtils.isNotBlank(username) && null == SecurityContextHolder.getContext().getAuthentication()) {
                 // 登录（通过username拿到userDetails对象）
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 // 验证token是否有效，重新设置用户对象
