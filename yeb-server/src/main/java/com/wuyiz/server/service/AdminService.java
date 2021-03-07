@@ -2,6 +2,9 @@ package com.wuyiz.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wuyiz.server.pojo.Admin;
+import com.wuyiz.server.utils.RespBean;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * <p>
@@ -13,4 +16,7 @@ import com.wuyiz.server.pojo.Admin;
  */
 public interface AdminService extends IService<Admin> {
 
+    RespBean login(String username, String password, HttpServletRequest request);
+
+    Admin getAdminInfo(String username);
 }

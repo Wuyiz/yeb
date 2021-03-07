@@ -3,12 +3,16 @@ package com.wuyiz.server.pojo;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 /**
  * <p>
@@ -22,7 +26,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 @TableName("t_admin")
 @ApiModel(value = "Admin对象", description = "管理员表")
-public class Admin implements Serializable {
+public class Admin implements Serializable, UserDetails {
 
     private static final long serialVersionUID = 1L;
 
@@ -45,6 +49,7 @@ public class Admin implements Serializable {
     @ApiModelProperty(value = "用户名")
     private String username;
 
+    @JsonIgnore
     @ApiModelProperty(value = "密码")
     private String password;
 
@@ -55,7 +60,31 @@ public class Admin implements Serializable {
     private String remark;
 
     @ApiModelProperty(value = "是否启用1 0")
-    private Integer enabled;
+    private Boolean enabled;
 
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
 }
