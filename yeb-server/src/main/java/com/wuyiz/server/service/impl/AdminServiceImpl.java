@@ -33,10 +33,12 @@ import java.util.Map;
 public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements AdminService {
     @Resource
     AdminMapper adminMapper;
+
     @Autowired
     UserDetailsService userDetailsService;
     @Autowired
     PasswordEncoder passwordEncoder;
+
     @Autowired
     JwtTokenUtil jwtTokenUtil;
     @Value("${jwt.tokenHead}")
@@ -49,7 +51,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
          */
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         //判断用户是否存在或密码是否正确
-        if (userDetails == null || passwordEncoder.matches(password, userDetails.getPassword())) {
+        if (null == userDetails || passwordEncoder.matches(password, userDetails.getPassword())) {
             return RespBean.error("用户不存在或密码不正确");
         }
 
@@ -61,7 +63,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
          *      其主要与AbstractAuthenticationtoken的区别是针对用户名和密码约定进行了一定的封装,
          *      将username复制到了principal，而将password赋值到了credentials，最后传入权限列表
          *
-         * 此处传入第二参数为密码，但是密码不保存在服务器，所以使用null传入
+         * 此处传入第二参数为密码，但是密码不能保存在服务器，所以使用null传入
          */
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(

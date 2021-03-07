@@ -56,6 +56,7 @@ public class JwtTokenUtil {
         String username;
         try {
             Claims claims = getClaimFormToken(token);
+            //通过载荷中的sub取出用户名
             username = claims.getSubject();
         } catch (Exception e) {
             username = null;
@@ -64,7 +65,7 @@ public class JwtTokenUtil {
     }
 
     /**
-     *
+     * 验证当前传入token的用户名与服务器保存的值是否匹配，并且判断token是否过期
      * @param token
      * @param userDetails
      * @return
@@ -90,6 +91,7 @@ public class JwtTokenUtil {
      */
     public String refreshToken(String token) {
         Claims claims = getClaimFormToken(token);
+        //更新当前token中的创建时间，并重新生成token
         claims.put(CLAIM_KEY_CREATED, new Date());
         return generateToken(claims);
     }
