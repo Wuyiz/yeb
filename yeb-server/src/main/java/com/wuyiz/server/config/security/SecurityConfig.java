@@ -1,21 +1,22 @@
 package com.wuyiz.server.config.security;
 
-import com.wuyiz.server.config.security.component.JwtAuthenticationTokenFilter;
-import com.wuyiz.server.config.security.component.RestAuthorizationEntryPoint;
-import com.wuyiz.server.config.security.component.RestfulAccessDeniedHandler;
+import com.wuyiz.server.config.security.component.*;
 import com.wuyiz.server.pojo.Admin;
 import com.wuyiz.server.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
@@ -28,10 +29,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     AdminService adminService;
+
     @Autowired
     RestAuthorizationEntryPoint restAuthorizationEntryPoint;    // 自定义的尚未登陆或token失效的结果页面
     @Autowired
     RestfulAccessDeniedHandler restfulAccessDeniedHandler;      // 自定义的没有权限的结果页面
+
+    @Autowired
+    private CustomFilter customFilter;
+    @Autowired
+    private CustomUrlDecisionManager customUrlDecisionManager;
 
     /**
      * 让springSecurity走自定义的userDetailsService方法
@@ -54,7 +61,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/login",
                 "/register",
                 "/logout",
-                "/captcha/**",
+                "/captcha",
                 "/**.html",
                 "/css/**",
                 "/js/**",
@@ -85,6 +92,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 所有请求都需要认证
                 .anyRequest()
                 .authenticated()
+                // 动态权限配置
+                .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
+                    @Override
+                    public <O extends FilterSecurityInterceptor> O postProcess(O object) {
+                        object.setAccessDecisionManager(customUrlDecisionManager);
+                        object.setSecurityMetadataSource(customFilter);
+                        return object;
+                    }
+                })
                 .and()
                 // 禁用缓存
                 .headers()
@@ -108,9 +124,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return username -> {
             Admin admin = adminService.getAdminInfo(username);
             if (null != admin) {
+                admin.setRoles(adminService.getRoles(admin.getId()));
                 return admin;
             }
-            return null;
+            throw new UsernameNotFoundException("用户不存在或密码不正确");
         };
     }
 

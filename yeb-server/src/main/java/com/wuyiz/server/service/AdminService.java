@@ -2,9 +2,11 @@ package com.wuyiz.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wuyiz.server.pojo.Admin;
+import com.wuyiz.server.pojo.Role;
 import com.wuyiz.server.utils.RespBean;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * <p>
@@ -32,4 +34,11 @@ public interface AdminService extends IService<Admin> {
      * @return
      */
     Admin getAdminInfo(String username);
+
+    /**
+     * 根据用户id获取角色列表
+     * @param adminId
+     * @return
+     */
+    List<Role> getRoles(Integer adminId);
 }

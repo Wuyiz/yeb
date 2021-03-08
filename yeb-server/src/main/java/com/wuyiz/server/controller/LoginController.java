@@ -38,7 +38,9 @@ public class LoginController {
         if (null == principal) {
             return null;
         }
-        return adminService.getAdminInfo(principal.getName());
+        Admin admin = adminService.getAdminInfo(principal.getName());
+        admin.setRoles(adminService.getRoles(admin.getId()));
+        return admin;
     }
 
     @ApiOperation(value = "退出账户")

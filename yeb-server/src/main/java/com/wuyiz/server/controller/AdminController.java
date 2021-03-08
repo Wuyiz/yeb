@@ -16,8 +16,4 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin")
 public class AdminController {
 
-    @RequestMapping("hello")
-    public String hello() {
-        return "hello";
-    }
 }

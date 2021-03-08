@@ -63,4 +63,8 @@ public class Menu implements Serializable {
     @TableField(exist = false)
     private List<Menu> children;    // 子菜单，设置exist为false，表示表字段中没有这个字段，避免写入数据时出错
 
+    @ApiModelProperty(value = "角色列表")
+    @TableField(exist = false)
+    private List<Role> roles;        //角色表，当前菜单路径属于哪些角色
+
 }

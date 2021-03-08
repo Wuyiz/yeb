@@ -67,8 +67,8 @@ jwt:
   tokenHeader: Authorization
   # jwt加解密使用的密钥
   secret: yeb-secret
-  # jwt的过期时间（60*60*24）
-  expiration: 604800
+  # jwt的过期时间（60*60*24*1000）一天
+  expiration: 86400000
   # jwt负载中拿到开头
   tokenHead: Bearer
 

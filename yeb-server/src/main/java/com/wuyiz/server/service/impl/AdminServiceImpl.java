@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wuyiz.server.config.security.component.JwtTokenUtil;
 import com.wuyiz.server.mapper.AdminMapper;
+import com.wuyiz.server.mapper.RoleMapper;
 import com.wuyiz.server.pojo.Admin;
+import com.wuyiz.server.pojo.Role;
 import com.wuyiz.server.service.AdminService;
 import com.wuyiz.server.utils.RespBean;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,6 +37,8 @@ import java.util.Map;
 public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements AdminService {
     @Resource
     AdminMapper adminMapper;
+    @Resource
+    RoleMapper roleMapper;
 
     @Autowired
     UserDetailsService userDetailsService;
@@ -87,5 +92,10 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         return adminMapper.selectOne(
                 new QueryWrapper<Admin>()
                         .eq("username", username).eq("enabled", true));
+    }
+
+    @Override
+    public List<Role> getRoles(Integer adminId) {
+        return roleMapper.getRoles(adminId);
     }
 }
