@@ -16,9 +16,51 @@
         <result column="enabled" property="enabled"/>
     </resultMap>
 
+    <resultMap id="Menus" type="Menu" extends="BaseResultMap">
+        <collection property="children" ofType="Menu">
+            <id column="id2" property="id"/>
+            <result column="url2" property="url"/>
+            <result column="path2" property="path"/>
+            <result column="component2" property="component"/>
+            <result column="name2" property="name"/>
+            <result column="icon_cls2" property="iconCls"/>
+            <result column="keep_alive2" property="keepAlive"/>
+            <result column="require_auth2" property="requireAuth"/>
+            <result column="parent_id2" property="parentId"/>
+            <result column="enabled2" property="enabled"/>
+        </collection>
+    </resultMap>
+
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, url, path, component, name, icon_cls, keep_alive, require_auth, parent_id, enabled
     </sql>
+
+    <!--根据id查询角色所属的菜单列表-->
+    <select id="getMenuListByAdminId" resultMap="Menus">
+        SELECT DISTINCT
+            m1.*,
+            m2.id id2,
+            m2.url url2,
+            m2.path path2,
+            m2.component component2,
+            m2.`name` name2,
+            m2.icon_cls icon_cls2,
+            m2.keep_alive keep_alive2,
+            m2.require_auth require_auth2,
+            m2.parent_id parent_id2,
+            m2.enabled enabled2
+        FROM
+            t_menu AS m1,
+            t_menu AS m2,
+            t_admin_role AS ar,
+            t_menu_role AS mr
+        WHERE
+            m1.id = m2.parent_id
+            AND m2.id = mr.mid
+            AND mr.rid = ar.rid
+            AND ar.admin_id = #{id}
+            AND m2.enabled = TRUE
+    </select>
 
 </mapper>

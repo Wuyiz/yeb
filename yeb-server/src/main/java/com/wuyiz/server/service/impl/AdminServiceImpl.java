@@ -2,7 +2,7 @@ package com.wuyiz.server.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wuyiz.server.config.security.JwtTokenUtil;
+import com.wuyiz.server.config.security.component.JwtTokenUtil;
 import com.wuyiz.server.mapper.AdminMapper;
 import com.wuyiz.server.pojo.Admin;
 import com.wuyiz.server.service.AdminService;

@@ -3,6 +3,8 @@ package com.wuyiz.server.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wuyiz.server.pojo.Menu;
 
+import java.util.List;
+
 /**
  * <p>
  * 菜单表 服务类
@@ -13,4 +15,9 @@ import com.wuyiz.server.pojo.Menu;
  */
 public interface MenuService extends IService<Menu> {
 
+    /**
+     *
+     * @return
+     */
+    List<Menu> getMenuListByAdminId();
 }
