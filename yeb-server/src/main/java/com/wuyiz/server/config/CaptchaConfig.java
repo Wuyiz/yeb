@@ -3,7 +3,7 @@ package com.wuyiz.server.config;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.google.code.kaptcha.util.Config;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.Properties;
 
@@ -13,7 +13,7 @@ import java.util.Properties;
  * @date: 2021-03-08 3:16
  * @description: google kaptcha 验证码配置
  */
-@Component
+@Configuration
 public class CaptchaConfig {
     @Bean
     public DefaultKaptcha defaultKaptcha() {
