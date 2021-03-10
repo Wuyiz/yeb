@@ -32,7 +32,7 @@
         </collection>
     </resultMap>
 
-    <!--查询所有菜单 共三级-->
+    <!--所有菜单 共三级-->
     <resultMap id="MenusWithChildren" type="Menu" extends="BaseResultMap">
         <collection property="children" ofType="Menu">
             <id column="id2" property="id"/>

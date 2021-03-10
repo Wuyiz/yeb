@@ -16,6 +16,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RespPageBena {
+    // 总数
     private Long total;
+    // 数据
     private List<?> data;
 }
