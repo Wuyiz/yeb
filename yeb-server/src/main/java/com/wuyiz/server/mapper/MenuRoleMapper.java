@@ -12,5 +12,11 @@ import com.wuyiz.server.pojo.MenuRole;
  * @since 2021-03-06
  */
 public interface MenuRoleMapper extends BaseMapper<MenuRole> {
-
+    /**
+     * 更新用户角色对应的菜单
+     * @param rid
+     * @param mids
+     * @return
+     */
+    Integer insertRecord(Integer rid, Integer[] mids);
 }
