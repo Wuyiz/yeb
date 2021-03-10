@@ -12,9 +12,37 @@
         <result column="is_parent" property="isParent"/>
     </resultMap>
 
+    <!--递归查询部门信息-->
+    <resultMap id="DepartmentWithChildren" type="Department" extends="BaseResultMap">
+        <collection property="children" ofType="Department" column="id"
+                    select="com.wuyiz.server.mapper.DepartmentMapper.getAllDepartments"/>
+    </resultMap>
+
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, name, parent_id, dep_path, enabled, is_parent
     </sql>
+
+    <!--调用存储过程删除部门-->
+    <select id="delDepartment" statementType="CALLABLE">
+        call deleteDep(#{id, mode=IN, jdbcType=INTEGER}, #{result, mode=OUT, jdbcType=INTEGER})
+    </select>
+
+    <!--调用存储过程添加部门-->
+    <select id="addDepartment" statementType="CALLABLE">
+        call addDep(#{name, mode=IN, jdbcType=VARCHAR}, #{parentId, mode=IN, jdbcType=INTEGER},
+                    #{enabled, mode=IN, jdbcType=BOOLEAN}, #{result, mode=OUT, jdbcType=INTEGER},
+                    #{id, mode=OUT, jdbcType=INTEGER})
+    </select>
+
+    <!--查询所有部门信息-->
+    <select id="getAllDepartments" resultMap="DepartmentWithChildren">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        t_department
+        WHERE
+        parent_id = #{parentId}
+    </select>
 
 </mapper>
