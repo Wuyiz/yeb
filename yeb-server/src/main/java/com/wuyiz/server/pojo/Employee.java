@@ -124,6 +124,7 @@ public class Employee implements Serializable {
     @ApiModelProperty(value = "工资账套ID")
     private Integer salaryId;
 
+
     @ApiModelProperty("民族")
     @TableField(exist = false)
     private Nation nation;
