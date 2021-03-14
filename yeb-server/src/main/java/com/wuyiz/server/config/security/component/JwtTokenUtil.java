@@ -1,15 +1,15 @@
 package com.wuyiz.server.config.security.component;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA
@@ -26,13 +26,12 @@ import java.util.Map;
  */
 @Component
 public class JwtTokenUtil {
-    //荷载常量
-    private static final String CLAIM_KEY_USERNAME = "sub";
-    private static final String CLAIM_KEY_CREATED = "created";
+    private static Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
+
     @Value("${jwt.secret}")
     private String secret;
     @Value("${jwt.expiration}")
-    private Long expiration;
+    private Integer expiration;
 
     /**
      * 根据用户信息生成token
@@ -40,11 +39,11 @@ public class JwtTokenUtil {
      * @return
      */
     public String generateToken(UserDetails userDetails) {
-        //创建载荷信息集合map
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(CLAIM_KEY_USERNAME, userDetails.getUsername());
-        claims.put(CLAIM_KEY_CREATED, new Date());
-        return generateToken(claims);
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .setExpiration(generateExpirationDate())
+                .signWith(SignatureAlgorithm.HS256, secret)
+                .compact();
     }
 
     /**
@@ -56,7 +55,6 @@ public class JwtTokenUtil {
         String username;
         try {
             Claims claims = getClaimFormToken(token);
-            //通过载荷中的sub取出用户名
             username = claims.getSubject();
         } catch (Exception e) {
             username = null;
@@ -72,28 +70,29 @@ public class JwtTokenUtil {
      */
     public boolean validateToken(String token, UserDetails userDetails) {
         String username = getUserNameFromToken(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        return StringUtils.equals(username, userDetails.getUsername()) && !isTokenExpired(token);
     }
 
     /**
-     * 判断token是否可以被刷新
+     * 解析token获取载荷信息
      * @param token
      * @return
      */
-    public boolean canRefresh(String token) {
-        return !isTokenExpired(token);
-    }
-
-    /**
-     * 更新token创建日期并重新生成token
-     * @param token
-     * @return
-     */
-    public String refreshToken(String token) {
-        Claims claims = getClaimFormToken(token);
-        //更新当前token中的创建时间，并重新生成token
-        claims.put(CLAIM_KEY_CREATED, new Date());
-        return generateToken(claims);
+    private Claims getClaimFormToken(String token) {
+        Claims claims = null;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey(secret)
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            // 解析过期token时会有异常，但ExpiredJwtException中保存了过期token信息，返回claim供其他方法获取token信息
+            claims = e.getClaims();
+        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
+            // token：签名不对或内容残缺
+            logger.error("[JWT解析异常]: {}", e.getMessage(), e);
+        }
+        return claims;
     }
 
     /**
@@ -102,8 +101,8 @@ public class JwtTokenUtil {
      * @return
      */
     private boolean isTokenExpired(String token) {
-        Date expiredDate = getExpiredDateFromToken(token);
-        return expiredDate.before(new Date());
+        Date expiration = getExpiredDateFromToken(token);
+        return expiration.before(new Date());
     }
 
     /**
@@ -116,44 +115,13 @@ public class JwtTokenUtil {
     }
 
     /**
-     * 从token中获取载荷信息
-     * @param token
-     * @return
-     */
-    private Claims getClaimFormToken(String token) {
-        Claims claims = null;
-        try {
-            claims = Jwts.parser()
-                    .setSigningKey(secret)
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return claims;
-    }
-
-
-    /**
-     * 根据用户信息生成jwt token
-     * @param claims
-     * @return
-     */
-    private String generateToken(Map<String, Object> claims) {
-        return Jwts.builder()
-                .setClaims(claims)
-                .setExpiration(generateExpirationDate())
-                .signWith(SignatureAlgorithm.HS256, secret)
-                .compact();
-    }
-
-    /**
      * 生成token失效时间
      * @return
      */
     private Date generateExpirationDate() {
-        return new Date(System.currentTimeMillis() + expiration);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.MILLISECOND, expiration);
+        return calendar.getTime();
     }
-
-
 }

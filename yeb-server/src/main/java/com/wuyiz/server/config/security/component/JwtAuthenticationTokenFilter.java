@@ -52,8 +52,9 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                 if (jwtTokenUtil.validateToken(authToken, userDetails)) {
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    // 重新设置用户对象到 springSecurity上下文中去
+                    // 设置用户到request中去，可以用Principal或者Authentication接收
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    // 重新设置用户对象到 springSecurity上下文中去
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
             }

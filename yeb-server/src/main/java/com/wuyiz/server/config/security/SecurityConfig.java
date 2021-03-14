@@ -131,6 +131,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         };
     }
 
+
     /**
      * springSecurity自带的加解密对象
      * @return
